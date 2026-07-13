@@ -8,43 +8,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-          channel: 'stable'
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Generate Hive Files
-        run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Build APK Release
-        run: flutter build apk --release --split-per-abi
-
-      - name: Build App Bundle AAB
-        run: flutter build appbundle --release
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+      - run: flutter pub get
+      - run: flutter pub run build_runner build --delete-conflicting-outputs
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
         with:
           name: wynote-apk
           path: build/app/outputs/flutter-apk/*.apk
-
-      - name: Upload AAB Artifact  
-        uses: actions/upload-artifact@v4
-        with:
-          name: wynote-aab
-          path: build/app/outputs/bundle/release/*.aab
