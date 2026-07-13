@@ -1,55 +1,65 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import '../models/note_model.dart';
 
-class PremiumNotifier extends StateNotifier<bool> {
-  PremiumNotifier() : super(false);
+class AppProvider extends ChangeNotifier {
+  Box<NoteModel> noteBox = Hive.box<NoteModel>('notes');
+  Box<FolderModel> folderBox = Hive.box<FolderModel>('folders');
+  
+  List<NoteModel> get notes => noteBox.values.where((n) =>!n.isDeleted).toList();
+  List<FolderModel> get folders => folderBox.values.toList();
+  List<NoteModel> get trash => noteBox.values.where((n) => n.isDeleted).toList();
 
-  void unlockPremium() => state = true;
-  void revokePremium() => state = false;
-}
-
-final premiumProvider = StateNotifierProvider<PremiumNotifier, bool>((ref) {
-  return PremiumNotifier();
-});
-
-class NotesNotifier extends StateNotifier<List<Note>> {
-  NotesNotifier()
-      : super([
-          Note(
-            id: '1',
-            title: '🚀 WyNote Product Strategy',
-            content: 'Leverage app open interstitials alongside value exchange rewarded modules.',
-            updatedAt: DateTime.now(),
-          ),
-          Note(
-            id: '2',
-            title: 'Shopping Checklist',
-            content: 'Fresh mint, cold brew espresso, organic honey.',
-            updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-          ),
-        ]);
-
-  void addNote(String title, String content) {
-    final newNote = Note(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
-      content: content,
-      updatedAt: DateTime.now(),
-    );
-    state = [newNote, ...state];
+  void addNote(NoteModel note) {
+    noteBox.put(note.id, note);
+    notifyListeners();
   }
 
-  void updateNote(String id, String title, String content) {
-    state = [
-      for (final note in state)
-        if (note.id == id)
-          note.copyWith(title: title, content: content, updatedAt: DateTime.now())
-        else
-          note,
-    ];
+  void updateNote(NoteModel note) {
+    noteBox.put(note.id, note);
+    notifyListeners();
+  }
+
+  void deleteNote(String id) {
+    final note = noteBox.get(id);
+    if (note!= null) {
+      note.isDeleted = true;
+      noteBox.put(id, note);
+      notifyListeners();
+    }
+  }
+
+  void restoreNote(String id) {
+    final note = noteBox.get(id);
+    if (note!= null) {
+      note.isDeleted = false;
+      noteBox.put(id, note);
+      notifyListeners();
+    }
+  }
+
+  void addFolder(FolderModel folder) {
+    folderBox.put(folder.id, folder);
+    notifyListeners();
+  }
+
+  void deleteFolder(String id) {
+    folderBox.delete(id);
+    notifyListeners();
+  }
+
+  void renameFolder(String id, String newName) {
+    final folder = folderBox.get(id);
+    if(folder!= null){
+      folderBox.put(id, FolderModel(id: id, name: newName));
+      notifyListeners();
+    }
+  }
+
+  List<NoteModel> searchNotes(String query) {
+    return notes.where((n) => 
+      n.title.toLowerCase().contains(query.toLowerCase()) ||
+      n.content.toLowerCase().contains(query.toLowerCase())
+    ).toList();
   }
 }
-
-final notesProvider = StateNotifierProvider<NotesNotifier, List<Note>>((ref) {
-  return NotesNotifier();
-});
