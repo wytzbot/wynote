@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/ad_service.dart';
 import 'home_screen.dart';
+import '../services/ad_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,43 +9,62 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
-    _handleLaunchSequence();
+    
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+
+    // After 2.5s, go to home and show ad
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      AdService.showLaunchAd(onAdDismissed: _goToHome);
+    });
   }
 
-  void _handleLaunchSequence() async {
-    // Synchronously wait for the AdMob system network hook up
-    await AdService.loadLaunchAd();
-    
-    AdService.showLaunchAd(
-      onAdDismissed: () {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
-        }
-      },
+  void _goToHome() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => HomeScreen())
     );
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: const Color(0xFF4CAF50),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'WyNote',
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.extrabold, letterSpacing: 1.2),
-            ),
-            SizedBox(height: 24),
-            CircularProgressIndicator.adaptive(),
-          ],
+        child: FadeTransition(
+          opacity: _animation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.note_alt_rounded, size: 100, color: Colors.white),
+              const SizedBox(height: 20),
+              const Text('WyNote', 
+                style: TextStyle(
+                  fontSize: 32, 
+                  fontWeight: FontWeight.bold, 
+                  color: Colors.white,
+                  letterSpacing: 1.5
+                )
+              ),
+              const SizedBox(height: 10),
+              const Text('Simple. Clean. Unlimited', 
+                style: TextStyle(color: Colors.white70, fontSize: 14)
+              ),
+            ],
+          ),
         ),
       ),
     );
