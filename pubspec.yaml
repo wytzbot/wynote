@@ -1,6 +1,7 @@
 name: wynote
-description: A premium, ultra-responsive cross-platform notepad with dual-stage monetization.
-version: 1.0.0+1
+description: Simple clean notepad with ads
+publish_to: 'none'
+version: 1.2.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -8,14 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod: ^2.5.2
-  google_mobile_ads: ^5.1.0
-  google_fonts: ^6.2.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  google_mobile_ads: ^4.0.0
+  provider: ^6.1.1
+  intl: ^0.19.0
+  flutter_quill: ^9.0.3
+  flutter_quill_extensions: ^0.5.3
+  pdf: ^3.10.7
+  printing: ^5.12.2
+  path_provider: ^2.1.3
+  share_plus: ^7.2.2
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
+  build_runner: ^2.4.7
+  hive_generator: ^2.0.1
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/bg.jpg
