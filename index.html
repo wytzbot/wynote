@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WyNote - Premium Minimalist Notepad</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="splash-ad-modal" class="modal-overlay active">
+        <div class="ad-card splash-ad">
+            <span class="ad-badge">Sponsor Ad</span>
+            <h2>Upgrade Your Workflow with WyNote Pro</h2>
+            <p>Get unlimited cloud sync, advanced markdown, and exclusive themes.</p>
+            <div class="ad-placeholder">
+                <div class="ad-video-mock">
+                    <span class="play-icon">▶</span>
+                    <p>Interactive Ad Content</p>
+                </div>
+            </div>
+            <button id="close-splash-ad-btn" class="btn disabled" disabled>Skip Ad in <span id="splash-timer">5</span>s</button>
+        </div>
+    </div>
+
+    <div id="reward-ad-modal" class="modal-overlay">
+        <div class="ad-card reward-ad">
+            <span class="ad-badge">Rewarded Ad</span>
+            <h2>Watching Ad to Unlock Premium...</h2>
+            <div class="ad-placeholder reward-loading">
+                <div class="spinner"></div>
+                <p>Unlocking premium features in <span id="reward-timer">8</span> seconds...</p>
+            </div>
+            <p class="ad-disclaimer">Do not close this modal to ensure your premium features activate.</p>
+        </div>
+    </div>
+
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">WyNote<span class="logo-dot">.</span></h1>
+                <button id="new-note-btn" class="btn-primary">+ New Note</button>
+            </div>
+            
+            <div class="notes-list" id="notes-list">
+                </div>
+
+            <div class="sidebar-footer">
+                <button id="unlock-premium-btn" class="btn-premium">
+                    <span class="crown-icon">👑</span> Unlock Premium Themes
+                </button>
+                <div id="premium-status" class="premium-badge hidden">✨ Premium Active</div>
+            </div>
+        </aside>
+
+        <main class="editor-workspace">
+            <header class="editor-header">
+                <input type="text" id="note-title" placeholder="Untitled Note" autocomplete="off">
+                <div class="editor-actions">
+                    <span id="save-status">Saved</span>
+                    <button id="delete-note-btn" class="btn-danger" title="Delete Note">🗑️</button>
+                </div>
+            </header>
+
+            <div class="editor-toolbar">
+                <button class="tool-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                <button class="tool-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+                <button class="tool-btn" id="highlight-btn" title="Highlight Text">🖍️</button>
+                <button class="tool-btn" id="todo-btn" title="To-Do List">☑️</button>
+                
+                <span class="toolbar-divider"></span>
+                
+                <button class="tool-btn" data-cmd="undo" title="Undo">↩️</button>
+                <button class="tool-btn" data-cmd="redo" title="Redo">↪️</button>
+                
+                <span class="toolbar-divider"></span>
+
+                <div class="dropdown">
+                    <button class="dropdown-trigger" title="Download Document">💾 Export File</button>
+                    <div class="dropdown-menu">
+                        <button class="export-opt" data-ext="txt">as Plain Text (.txt)</button>
+                        <button class="export-opt" data-ext="md">as Markdown (.md)</button>
+                        <button class="export-opt" data-ext="html">as Web Page (.html)</button>
+                    </div>
+                </div>
+            </div>
+            
+            <section class="editor-body">
+                <div id="note-content" contenteditable="true" placeholder="Start writing something beautiful..."></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+  </html>
