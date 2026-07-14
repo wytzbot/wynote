@@ -5,7 +5,6 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-# This lets us deploy to GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -15,36 +14,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter 3.24.5
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
           cache: false
 
-      - name: Flutter Version
-        run: flutter --version
+      - run: flutter clean
+      - run: flutter pub get
 
-      - name: Flutter Clean
-        run: flutter clean
+      # KEY FIX: base-href is now just /
+      - run: flutter build web --release --web-renderer html --base-href /
 
-      - name: Get Dependencies
-        run: flutter pub get
-
-      # KEY: Build for WEB with HTML renderer for max compatibility
-      - name: Build Flutter Web
-        run: flutter build web --release --web-renderer html --base-href /wynote/
-
-      - name: Upload Web Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: wynote-web
           path: build/web
 
-  # This deploys to GitHub Pages automatically
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -52,6 +39,4 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
