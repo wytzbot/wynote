@@ -44,7 +44,10 @@
         <!-- Sidebar Layout -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1 class="logo">WyNote<span class="logo-dot">.</span></h1>
+                <div class="logo-area">
+                    <h1 class="logo">WyNote<span class="logo-dot">.</span></h1>
+                    <button id="close-sidebar-btn" class="mobile-only-btn" title="Close Menu">✕</button>
+                </div>
                 <button id="new-note-btn" class="btn-primary">+ New Note</button>
                 <button id="create-folder-btn" class="btn-folder">📁 Create Folder</button>
             </div>
@@ -61,7 +64,7 @@
         <!-- Main Editor Workspace -->
         <main class="editor-workspace" id="editor-workspace">
             <header class="editor-header">
-                <button id="mobile-back-btn" class="mobile-only-btn" title="Back to Notes">⬅️ Notes</button>
+                <button id="mobile-menu-btn" class="mobile-only-btn" title="Open Notes List">☰ Menu</button>
                 <input type="text" id="note-title" placeholder="Untitled Note" autocomplete="off">
                 <div class="editor-actions">
                     <span id="save-status">Saved</span>
@@ -103,4 +106,4 @@
 
     <script src="app.js"></script>
 </body>
-                                                                         </html>
+                </html>
