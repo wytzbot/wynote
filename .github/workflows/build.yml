@@ -1,7 +1,5 @@
 name: Build WyNote Flutter
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
 jobs:
   build:
@@ -16,9 +14,8 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
+      - run: flutter config --no-analytics
       - run: flutter pub get
-      - run: flutter upgrade --force
-      - run: dart run build_runner build --delete-conflicting-outputs || echo "skip"
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
