@@ -2,25 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body { margin: 0; padding: 0; }
-  #editor { height: 100vh; width: 100%; } /* Full screen on phone */
-  .ql-toolbar { position: sticky; top: 0; z-index: 1; } /* Toolbar stays on top */
-</style>
-    <title>WyNote - Premium Minimalist Notepad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WyNote - Premium Minimalist Editor</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <!-- App Entry Splash Ad (Triggers on every single app entry/load) -->
+    <!-- Pull to Refresh Indicator Banner -->
+    <div id="pull-to-refresh-banner" class="ptr-element">
+        <div class="ptr-spinner"></div>
+        <span id="ptr-label">Pull down to refresh</span>
+    </div>
+
+    <!-- Splash Ad Modal -->
     <div id="splash-ad-modal" class="modal-overlay active">
         <div class="ad-card splash-ad">
             <span class="ad-badge">Sponsor Ad</span>
-            <h2>Welcome Back to WyNote Pro</h2>
-            <p>Your minimalist companion for focus and organized thoughts.</p>
+            <h2>Welcome to WyNote Pro</h2>
+            <p>Your premium minimalist workspace.</p>
             <div class="ad-placeholder">
                 <div class="ad-video-mock">
                     <span class="play-icon">▶</span>
@@ -31,35 +32,34 @@
         </div>
     </div>
 
-    <!-- Reward Video Ad Modal (Required for premium downloads & folders) -->
+    <!-- Reward Video Ad Modal -->
     <div id="reward-ad-modal" class="modal-overlay">
         <div class="ad-card reward-ad">
             <span class="ad-badge">Ad Required</span>
-            <h2 id="reward-ad-title">Unlocking Premium Action...</h2>
+            <h2 id="reward-ad-title">Unlocking Action...</h2>
             <div class="ad-placeholder reward-loading">
                 <div class="spinner"></div>
-                <p>Watching video. Ready in <span id="reward-timer">8</span> seconds...</p>
+                <p>Preparing file. Ready in <span id="reward-timer">4</span> seconds...</p>
             </div>
-            <p class="ad-disclaimer">Please do not exit. Closing will abort the process.</p>
         </div>
     </div>
 
-    <!-- Main Application Container -->
+    <!-- Mobile-First App Container -->
     <div class="app-container">
         
-        <!-- Sidebar Layout -->
+        <!-- Sidebar Navigation (Hidden by default on mobile, slides in) -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-area">
                     <h1 class="logo">WyNote<span class="logo-dot">.</span></h1>
-                    <button id="close-sidebar-btn" class="mobile-only-btn" title="Close Menu">✕</button>
+                    <button id="close-sidebar-btn" class="sidebar-toggle" title="Close Menu">✕</button>
                 </div>
                 <button id="new-note-btn" class="btn-primary">+ New Note</button>
                 <button id="create-folder-btn" class="btn-folder">📁 Create Folder</button>
             </div>
             
             <div class="notes-list" id="notes-list">
-                <!-- Notes / Folders dynamically loaded here -->
+                <!-- Dynamically loaded directories -->
             </div>
 
             <div class="sidebar-footer">
@@ -67,49 +67,54 @@
             </div>
         </aside>
 
-        <!-- Main Editor Workspace -->
-        <main class="editor-workspace" id="editor-workspace">
+        <!-- Sidebar Overlay Dimmer for mobile portrait -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Main Workspace (Fills viewport) -->
+        <main class="editor-workspace">
             <header class="editor-header">
-                <button id="mobile-menu-btn" class="mobile-only-btn" title="Open Notes List">☰ Menu</button>
+                <button id="mobile-menu-btn" class="menu-trigger" title="Open Sidebar">☰</button>
                 <input type="text" id="note-title" placeholder="Untitled Note" autocomplete="off">
-                <div class="editor-actions">
-                    <span id="save-status">Saved</span>
-                    <button id="delete-note-btn" class="btn-danger" title="Delete Note">🗑️</button>
-                </div>
+                <button id="delete-note-btn" class="btn-delete" title="Delete Note">🗑️</button>
             </header>
 
-            <!-- Rich Text Editor Toolbar -->
+            <!-- Editor Ribbon Toolbar (Horizontal scrolling for smaller touchscreens) -->
             <div class="editor-toolbar">
-                <button class="tool-btn" data-cmd="bold" title="Bold"><b>B</b></button>
-                <button class="tool-btn" data-cmd="underline" title="Underline"><u>U</u></button>
-                <button class="tool-btn" id="highlight-btn" title="Highlight Text">🖍️</button>
-                <button class="tool-btn" id="todo-btn" title="To-Do List">☑️</button>
+                <button class="tool-btn" data-cmd="bold"><b>B</b></button>
+                <button class="tool-btn" data-cmd="underline"><u>U</u></button>
+                <button class="tool-btn" id="highlight-btn">🖍️ Highlight</button>
+                <button class="tool-btn" id="todo-btn">☑️ Task</button>
                 
                 <span class="toolbar-divider"></span>
                 
-                <button class="tool-btn" data-cmd="undo" title="Undo">↩️</button>
-                <button class="tool-btn" data-cmd="redo" title="Redo">↪️</button>
+                <button class="tool-btn" data-cmd="undo">↩️</button>
+                <button class="tool-btn" data-cmd="redo">↪️</button>
                 
                 <span class="toolbar-divider"></span>
 
-                <!-- Export Dropdown (Triggers Rewarded Ad) -->
-                <div class="dropdown">
-                    <button class="dropdown-trigger" title="Download Document">💾 Export File</button>
-                    <div class="dropdown-menu">
-                        <button class="export-opt" data-ext="txt">as Plain Text (.txt)</button>
-                        <button class="export-opt" data-ext="md">as Markdown (.md)</button>
-                        <button class="export-opt" data-ext="html">as Web Page (.html)</button>
+                <!-- Actionable Export Dropdown -->
+                <div class="dropdown" id="export-dropdown">
+                    <button class="dropdown-trigger" id="export-trigger-btn">💾 Export</button>
+                    <div class="dropdown-menu" id="export-dropdown-menu">
+                        <div class="export-opt" data-ext="txt">as Plain Text (.txt)</div>
+                        <div class="export-opt" data-ext="md">as Markdown (.md)</div>
+                        <div class="export-opt" data-ext="html">as Webpage (.html)</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Content Editable Body -->
+            <!-- Editor Content Block -->
             <section class="editor-body">
                 <div id="note-content" contenteditable="true" placeholder="Start writing something beautiful..."></div>
             </section>
+
+            <!-- Status Indicator Bar -->
+            <footer class="editor-footer">
+                <span id="save-status">Saved</span>
+            </footer>
         </main>
     </div>
 
     <script src="app.js"></script>
 </body>
-                                         </html>
+    </html>
