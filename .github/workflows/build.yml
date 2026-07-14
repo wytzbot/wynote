@@ -10,42 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Get your code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Java 17 - Required for Android
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3. Setup Flutter 3.24.5 - THIS FIXES THE INTL CONFLICT
-      - name: Setup Flutter
+      - name: Setup Flutter 3.24.5
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
           cache: false
 
-      # 4. Check version - so we can see it in logs
       - name: Flutter Version
         run: flutter --version
 
-      # 5. Clean old builds
       - name: Flutter Clean
         run: flutter clean
 
-      # 6. Get packages - THIS IS WHERE IT WAS FAILING
       - name: Get Dependencies
         run: flutter pub get
 
-      # 7. Build APK
+      - name: Upgrade to V2 Packages
+        run: flutter pub upgrade
+
       - name: Build APK Release
         run: flutter build apk --release
 
-      # 8. Upload APK as artifact so you can download it
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
