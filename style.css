@@ -118,19 +118,22 @@ body {
 .folder-actions-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
-.edit-folder-btn {
+.folder-action-btn {
     background: transparent;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    font-size: 13px;
-    padding: 4px;
+    font-size: 14px;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.edit-folder-btn:hover {
+.folder-action-btn:hover {
     color: var(--text-main);
 }
 
@@ -479,20 +482,20 @@ body {
     cursor: not-allowed;
 }
 
-/* --- RESPONSIVE MOBILE OVERRIDES --- */
+/* --- MOBILE SPECIFIC FIXES --- */
 @media screen and (max-width: 768px) {
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
         height: 100%;
-        width: 80%;
-        max-width: 300px;
-        transform: translateX(-100%); /* Hidden off-screen by default */
+        width: 85%;
+        max-width: 320px;
+        transform: translateX(-100%);
     }
     
     .app-container.sidebar-open .sidebar {
-        transform: translateX(0); /* Slide-in drawer navigation */
+        transform: translateX(0);
         box-shadow: 10px 0px 30px rgba(0, 0, 0, 0.7);
     }
     
@@ -512,7 +515,6 @@ body {
         padding: 20px;
     }
     
-    /* Close off-canvas element when active */
     .sidebar-overlay {
         position: fixed;
         top: 0;
