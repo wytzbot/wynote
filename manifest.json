@@ -2,7 +2,7 @@
   "name": "WyNote",
   "short_name": "WyNote",
   "description": "Your minimalist companion for focus and organization",
-  "start_url": "/",
+  "start_url": "https://wytzbot.github.io/wynote/",
   "display": "standalone",
   "background_color": "#4CAF50",
   "theme_color": "#4CAF50",
