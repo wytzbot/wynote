@@ -395,27 +395,31 @@ function renderAllElements() {
     });
 }
 function exportProject() {
-  // 1. Get all notes from localStorage
-  const notes = localStorage.getItem('wynote-content');
-  // If you have multiple notes, use: JSON.stringify(allNotesArray)
+  // Get content directly from Quill
+  const editorContent = quill.root.innerHTML; // or quill.getText() for plain text
+  const title = document.querySelector('input[placeholder="Title"]').value || "Untitled";
 
-  if (!notes) {
+  if (!editorContent || editorContent === "<p><br></p>") {
     alert("No notes to export!");
     return;
   }
 
-  // 2. Create a file blob
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(notes);
+  // Package it
+  const project = {
+    title: title,
+    content: editorContent,
+    exportedAt: new Date().toISOString()
+  };
+
+  const dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(project, null, 2));
   const downloadAnchorNode = document.createElement('a');
   downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", "wynote-backup-" + new Date().toISOString().split('T')[0] + ".json");
+  downloadAnchorNode.setAttribute("download", title + "-" + new Date().toISOString().split('T')[0] + ".json");
 
-  document.body.appendChild(downloadAnchorNode); // required for firefox
+  document.body.appendChild(downloadAnchorNode);
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
-
-  alert("Exported successfully!");
-}
+      }
 
 function createNoteDOM(note) {
     const card = document.createElement('div');
