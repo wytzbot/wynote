@@ -9,54 +9,59 @@
 </head>
 <body>
 
+    <!-- App Entry Splash Ad (Triggers on every single app entry/load) -->
     <div id="splash-ad-modal" class="modal-overlay active">
         <div class="ad-card splash-ad">
             <span class="ad-badge">Sponsor Ad</span>
-            <h2>Upgrade Your Workflow with WyNote Pro</h2>
-            <p>Get unlimited cloud sync, advanced markdown, and exclusive themes.</p>
+            <h2>Welcome Back to WyNote Pro</h2>
+            <p>Your minimalist companion for focus and organized thoughts.</p>
             <div class="ad-placeholder">
                 <div class="ad-video-mock">
                     <span class="play-icon">▶</span>
-                    <p>Interactive Ad Content</p>
+                    <p>Sponsor Video Presentation</p>
                 </div>
             </div>
             <button id="close-splash-ad-btn" class="btn disabled" disabled>Skip Ad in <span id="splash-timer">5</span>s</button>
         </div>
     </div>
 
+    <!-- Reward Video Ad Modal (Required for premium downloads & folders) -->
     <div id="reward-ad-modal" class="modal-overlay">
         <div class="ad-card reward-ad">
-            <span class="ad-badge">Rewarded Ad</span>
-            <h2>Watching Ad to Unlock Premium...</h2>
+            <span class="ad-badge">Ad Required</span>
+            <h2 id="reward-ad-title">Unlocking Premium Action...</h2>
             <div class="ad-placeholder reward-loading">
                 <div class="spinner"></div>
-                <p>Unlocking premium features in <span id="reward-timer">8</span> seconds...</p>
+                <p>Watching video. Ready in <span id="reward-timer">8</span> seconds...</p>
             </div>
-            <p class="ad-disclaimer">Do not close this modal to ensure your premium features activate.</p>
+            <p class="ad-disclaimer">Please do not exit. Closing will abort the process.</p>
         </div>
     </div>
 
+    <!-- Main Application Container -->
     <div class="app-container">
         
-        <aside class="sidebar">
+        <!-- Sidebar Layout -->
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1 class="logo">WyNote<span class="logo-dot">.</span></h1>
                 <button id="new-note-btn" class="btn-primary">+ New Note</button>
+                <button id="create-folder-btn" class="btn-folder">📁 Create Folder</button>
             </div>
             
             <div class="notes-list" id="notes-list">
-                </div>
+                <!-- Notes / Folders dynamically loaded here -->
+            </div>
 
             <div class="sidebar-footer">
-                <button id="unlock-premium-btn" class="btn-premium">
-                    <span class="crown-icon">👑</span> Unlock Premium Themes
-                </button>
-                <div id="premium-status" class="premium-badge hidden">✨ Premium Active</div>
+                <div class="premium-badge">⚡ Ad-Supported Free Mode</div>
             </div>
         </aside>
 
-        <main class="editor-workspace">
+        <!-- Main Editor Workspace -->
+        <main class="editor-workspace" id="editor-workspace">
             <header class="editor-header">
+                <button id="mobile-back-btn" class="mobile-only-btn" title="Back to Notes">⬅️ Notes</button>
                 <input type="text" id="note-title" placeholder="Untitled Note" autocomplete="off">
                 <div class="editor-actions">
                     <span id="save-status">Saved</span>
@@ -64,6 +69,7 @@
                 </div>
             </header>
 
+            <!-- Rich Text Editor Toolbar -->
             <div class="editor-toolbar">
                 <button class="tool-btn" data-cmd="bold" title="Bold"><b>B</b></button>
                 <button class="tool-btn" data-cmd="underline" title="Underline"><u>U</u></button>
@@ -77,6 +83,7 @@
                 
                 <span class="toolbar-divider"></span>
 
+                <!-- Export Dropdown (Triggers Rewarded Ad) -->
                 <div class="dropdown">
                     <button class="dropdown-trigger" title="Download Document">💾 Export File</button>
                     <div class="dropdown-menu">
@@ -87,6 +94,7 @@
                 </div>
             </div>
             
+            <!-- Content Editable Body -->
             <section class="editor-body">
                 <div id="note-content" contenteditable="true" placeholder="Start writing something beautiful..."></div>
             </section>
@@ -95,4 +103,4 @@
 
     <script src="app.js"></script>
 </body>
-  </html>
+                                                                         </html>
