@@ -12,7 +12,15 @@ const newNoteBtn = document.getElementById('new-note-btn');
 const createFolderBtn = document.getElementById('create-folder-btn');
 const deleteNoteBtn = document.getElementById('delete-note-btn');
 const saveStatus = document.getElementById('save-status');
-const mobileBackBtn = document.getElementById('mobile-back-btn');
+
+// Mobile UI Drawer Elements
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+
+// Create mobile background dimming element dynamically
+const overlay = document.createElement('div');
+overlay.className = 'sidebar-overlay';
+appContainer.appendChild(overlay);
 
 // Ads Elements
 const splashAdModal = document.getElementById('splash-ad-modal');
@@ -31,17 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNotesAndFolders();
     loadActiveNote();
     setupRichTextEditor();
+    setupMobileEvents();
 });
 
 // --- FORCE SPLASH AD ON ENTRY (Triggers on every single page load) ---
 function triggerSplashAdOnEntry() {
-    // Bring up the overlay instantly
     splashAdModal.classList.add('active');
     
     let timeLeft = 5;
     splashTimerSpan.innerText = timeLeft;
     
-    // Ensure button is locked
     closeSplashAdBtn.disabled = true;
     closeSplashAdBtn.classList.add('disabled');
     closeSplashAdBtn.innerText = `Skip Ad in ${timeLeft}s`;
@@ -88,9 +95,23 @@ function triggerRewardAdGate(adReasonTitle, callback) {
     }, 1000);
 }
 
+// --- RESPONSIVE MOBILE NAVIGATION CONTROLLER ---
+function setupMobileEvents() {
+    mobileMenuBtn.addEventListener('click', () => {
+        appContainer.classList.add('sidebar-open');
+    });
+
+    closeSidebarBtn.addEventListener('click', () => {
+        appContainer.classList.remove('sidebar-open');
+    });
+
+    overlay.addEventListener('click', () => {
+        appContainer.classList.remove('sidebar-open');
+    });
+}
+
 // --- FOLDER & NOTE DATA DIRECTORY ---
 createFolderBtn.addEventListener('click', () => {
-    // Intercept with Reward Ad
     triggerRewardAdGate("Watching Ad to Unlock Folder Creation", () => {
         const folderName = prompt("Enter folder name:") || "New Folder";
         folders.push({
@@ -123,25 +144,42 @@ function createNote(folderId = null) {
     renderNotesAndFolders();
     loadActiveNote();
     
-    // Auto-focus writing workspace on mobile
-    appContainer.classList.add('mobile-note-open');
+    appContainer.classList.remove('sidebar-open');
 }
 
 function renderNotesAndFolders() {
     notesList.innerHTML = '';
 
-    // Folders
     folders.forEach(folder => {
         const folderContainer = document.createElement('div');
         folderContainer.classList.add('folder-container');
 
         const folderHeader = document.createElement('div');
         folderHeader.classList.add('folder-header');
-        folderHeader.innerHTML = `<span>📁 ${escapeHTML(folder.name)}</span><button class="add-note-to-folder" style="background:transparent; border:none; cursor:pointer; color:var(--accent);">+ Add</button>`;
+        folderHeader.innerHTML = `
+            <span>📁 ${escapeHTML(folder.name)}</span>
+            <div class="folder-actions-wrapper">
+                <button class="edit-folder-btn" title="Rename Folder">✏️</button>
+                <button class="add-note-to-folder" style="background:transparent; border:none; cursor:pointer; color:var(--accent); font-weight:600;">+ Add</button>
+            </div>
+        `;
         
+        // Add note action
         folderHeader.querySelector('.add-note-to-folder').addEventListener('click', (e) => {
             e.stopPropagation();
             createNote(folder.id);
+        });
+
+        // Rename folder action (Premium access verified / editable)
+        folderHeader.querySelector('.edit-folder-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const originalName = folder.name;
+            const newName = prompt("Rename folder to:", originalName);
+            if (newName && newName.trim() !== '') {
+                folder.name = newName.trim();
+                saveData();
+                renderNotesAndFolders();
+            }
         });
 
         const folderNotesDiv = document.createElement('div');
@@ -157,7 +195,6 @@ function renderNotesAndFolders() {
         notesList.appendChild(folderContainer);
     });
 
-    // Root Notes
     const rootNotes = notes.filter(n => !n.folderId);
     rootNotes.forEach(note => {
         notesList.appendChild(createNoteItemDOM(note));
@@ -184,7 +221,7 @@ function createNoteItemDOM(note) {
         localStorage.setItem('wynote_active_id', activeNoteId);
         renderNotesAndFolders();
         loadActiveNote();
-        appContainer.classList.add('mobile-note-open');
+        appContainer.classList.remove('sidebar-open');
     });
 
     return item;
@@ -260,7 +297,6 @@ function setupRichTextEditor() {
         updateNote();
     });
 
-    // Save To-Do changes inside editor
     noteContentInput.addEventListener('change', (e) => {
         if (e.target.classList.contains('todo-checkbox')) {
             if (e.target.checked) {
@@ -276,7 +312,6 @@ function setupRichTextEditor() {
         }
     });
 
-    // Intercept Exporter with Reward Ads
     document.querySelectorAll('.export-opt').forEach(opt => {
         opt.addEventListener('click', () => {
             const ext = opt.getAttribute('data-ext');
@@ -314,11 +349,6 @@ function downloadFile(filename, content) {
     document.body.removeChild(element);
 }
 
-// Mobile back navigation
-mobileBackBtn.addEventListener('click', () => {
-    appContainer.classList.remove('mobile-note-open');
-});
-
 newNoteBtn.addEventListener('click', () => createNote());
 deleteNoteBtn.addEventListener('click', () => {
     if (!activeNoteId) return;
@@ -327,7 +357,6 @@ deleteNoteBtn.addEventListener('click', () => {
     saveData();
     renderNotesAndFolders();
     loadActiveNote();
-    appContainer.classList.remove('mobile-note-open');
 });
 
 noteTitleInput.addEventListener('input', updateNote);
