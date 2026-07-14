@@ -1,29 +1,57 @@
-name: Build WyNote APK
+name: Build WyNote Web
 
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
 
+# This lets us deploy to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter 3.24.5
+        uses: subosito/flutter-action@v2
         with:
-          distribution: 'zulu'
-          java-version: '17'
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.16.9'  # KEY CHANGE
+          flutter-version: '3.24.5'
           channel: 'stable'
           cache: false
-      - run: flutter --version
-      - run: flutter clean
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Flutter Clean
+        run: flutter clean
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      # KEY: Build for WEB with HTML renderer for max compatibility
+      - name: Build Flutter Web
+        run: flutter build web --release --web-renderer html --base-href /wynote/
+
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: wynote-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: wynote-web
+          path: build/web
+
+  # This deploys to GitHub Pages automatically
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
