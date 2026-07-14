@@ -19,5 +19,6 @@ jobs:
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
+        
           name: wynote-apk
           path: build/app/outputs/flutter-apk/app-release.apk
