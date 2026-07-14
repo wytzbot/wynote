@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupMobileEvents();
 });
 
-// --- FORCE SPLASH AD ON ENTRY (Triggers on every single page load) ---
+// --- FORCE SPLASH AD ON ENTRY ---
 function triggerSplashAdOnEntry() {
     splashAdModal.classList.add('active');
     
@@ -71,7 +71,7 @@ closeSplashAdBtn.addEventListener('click', () => {
     splashAdModal.classList.remove('active');
 });
 
-// --- REWARDED AD GATEWAY (Triggers every time a premium feature is requested) ---
+// --- REWARDED AD GATEWAY ---
 function triggerRewardAdGate(adReasonTitle, callback) {
     rewardAdTitle.innerText = adReasonTitle;
     rewardAdModal.classList.add('active');
@@ -159,8 +159,9 @@ function renderNotesAndFolders() {
         folderHeader.innerHTML = `
             <span>📁 ${escapeHTML(folder.name)}</span>
             <div class="folder-actions-wrapper">
-                <button class="edit-folder-btn" title="Rename Folder">✏️</button>
-                <button class="add-note-to-folder" style="background:transparent; border:none; cursor:pointer; color:var(--accent); font-weight:600;">+ Add</button>
+                <button class="folder-action-btn edit-folder-btn" title="Rename Folder">✏️</button>
+                <button class="folder-action-btn download-folder-btn" title="Download Folder to Device">📥</button>
+                <button class="add-note-to-folder" style="background:transparent; border:none; cursor:pointer; color:var(--accent); font-weight:600; padding:6px;">+ Add</button>
             </div>
         `;
         
@@ -170,7 +171,7 @@ function renderNotesAndFolders() {
             createNote(folder.id);
         });
 
-        // Rename folder action (Premium access verified / editable)
+        // Rename folder action
         folderHeader.querySelector('.edit-folder-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             const originalName = folder.name;
@@ -180,6 +181,58 @@ function renderNotesAndFolders() {
                 saveData();
                 renderNotesAndFolders();
             }
+        });
+
+        // Download entire folder contents compile action (Requires Premium Reward Ad)
+        folderHeader.querySelector('.download-folder-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const folderNotes = notes.filter(n => n.folderId === folder.id);
+            if (folderNotes.length === 0) {
+                alert("This folder is empty. Create some notes inside before downloading!");
+                return;
+            }
+
+            triggerRewardAdGate(`Compiling Folder: "${folder.name}"`, () => {
+                const formatChoice = prompt("Export format? Type: txt, md, or html", "txt");
+                if (!formatChoice) return;
+                
+                const ext = formatChoice.toLowerCase().trim();
+                if (!['txt', 'md', 'html'].includes(ext)) {
+                    alert("Invalid format entered. Please use txt, md, or html.");
+                    return;
+                }
+
+                let outputContent = "";
+                const dateHeader = new Date().toLocaleDateString();
+
+                if (ext === 'html') {
+                    outputContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHTML(folder.name)}</title><style>body{font-family:sans-serif;padding:30px;background:#121212;color:#eee;} h1{border-bottom:2px solid #6366f1;padding-bottom:10px;} .note{margin-bottom:40px;background:#1a1a1e;padding:20px;border-radius:8px;}</style></head><body><h1>Folder: ${escapeHTML(folder.name)}</h1><p>Export Date: ${dateHeader}</p>`;
+                    folderNotes.forEach(note => {
+                        outputContent += `<div class="note"><h2>${note.title || 'Untitled Note'}</h2><div>${note.content}</div></div>`;
+                    });
+                    outputContent += `</body></html>`;
+                } else if (ext === 'md') {
+                    outputContent = `# Folder: ${folder.name}\nExported: ${dateHeader}\n\n---\n\n`;
+                    folderNotes.forEach(note => {
+                        let tempContent = note.content;
+                        tempContent = tempContent.replace(/<b>(.*?)<\/b>/gi, '**$1**');
+                        tempContent = tempContent.replace(/<u>(.*?)<\/u>/gi, '_$1_');
+                        tempContent = tempContent.replace(/<div.*?>(.*?)<\/div>/gi, '\n$1').replace(/<br>/gi, '\n');
+                        tempContent = tempContent.replace(/<[^>]*>/g, '');
+                        outputContent += `## ${note.title || 'Untitled Note'}\n\n${tempContent}\n\n---\n\n`;
+                    });
+                } else {
+                    outputContent = `FOLDER: ${folder.name.toUpperCase()}\nExported: ${dateHeader}\n========================================\n\n`;
+                    folderNotes.forEach(note => {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = note.content;
+                        const textOnly = tempDiv.innerText;
+                        outputContent += `TITLE: ${note.title || 'Untitled Note'}\n----------------------------------------\n${textOnly}\n\n========================================\n\n`;
+                    });
+                }
+
+                downloadFile(`${folder.name.replace(/\s+/g, '_')}_compiled.${ext}`, outputContent);
+            });
         });
 
         const folderNotesDiv = document.createElement('div');
@@ -274,7 +327,7 @@ function saveData() {
     localStorage.setItem('wynote_active_id', activeNoteId);
 }
 
-// --- TEXT EDITOR & HIGH-GATED EXPORTS ---
+// --- SECURE & DEVICE COMPATIBLE BLOB EXPORTER ---
 function setupRichTextEditor() {
     document.querySelectorAll('.tool-btn[data-cmd]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -312,6 +365,7 @@ function setupRichTextEditor() {
         }
     });
 
+    // Individual file down-loader engine (Fully compatible with iOS and Android WebViews)
     document.querySelectorAll('.export-opt').forEach(opt => {
         opt.addEventListener('click', () => {
             const ext = opt.getAttribute('data-ext');
@@ -323,7 +377,7 @@ function setupRichTextEditor() {
                 let fileContent = '';
 
                 if (ext === 'html') {
-                    fileContent = noteContentInput.innerHTML;
+                    fileContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${activeNote.title || 'Untitled'}</title></head><body style="padding:20px; font-family:sans-serif;">${noteContentInput.innerHTML}</body></html>`;
                 } else if (ext === 'md') {
                     let temp = noteContentInput.innerHTML;
                     temp = temp.replace(/<b>(.*?)<\/b>/gi, '**$1**');
@@ -339,14 +393,23 @@ function setupRichTextEditor() {
     });
 }
 
+// Modern device-compliant blob-download link emulator (Standard sandbox bypass)
 function downloadFile(filename, content) {
+    const mimeType = filename.endsWith('.html') ? 'text/html' : 'text/plain';
+    const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
+    const url = URL.createObjectURL(blob);
+    
     const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('href', url);
     element.setAttribute('download', filename);
     element.style.display = 'none';
+    
     document.body.appendChild(element);
     element.click();
+    
+    // Clean memory instantly
     document.body.removeChild(element);
+    URL.revokeObjectURL(url);
 }
 
 newNoteBtn.addEventListener('click', () => createNote());
@@ -364,4 +427,4 @@ noteContentInput.addEventListener('input', updateNote);
 
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-}
+    }
