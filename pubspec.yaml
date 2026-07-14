@@ -1,23 +1,22 @@
 name: wynote
 description: A Flutter note-taking app
 version: 1.0.0+1
-
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:  # This forces intl 0.20.2
+  flutter_localizations:
     sdk: flutter
+  cupertino_icons: ^1.0.8
   
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
-  # LATEST QUILL
   flutter_quill: ^9.5.0
   flutter_quill_extensions: ^9.3.4
-  intl: ^0.20.2  # Must match Flutter's pinned version
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
