@@ -394,6 +394,28 @@ function renderAllElements() {
         notesList.appendChild(createNoteDOM(n));
     });
 }
+function exportProject() {
+  // 1. Get all notes from localStorage
+  const notes = localStorage.getItem('wynote-content');
+  // If you have multiple notes, use: JSON.stringify(allNotesArray)
+
+  if (!notes) {
+    alert("No notes to export!");
+    return;
+  }
+
+  // 2. Create a file blob
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(notes);
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "wynote-backup-" + new Date().toISOString().split('T')[0] + ".json");
+
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+
+  alert("Exported successfully!");
+}
 
 function createNoteDOM(note) {
     const card = document.createElement('div');
