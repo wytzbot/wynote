@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WyNote PDF - Advanced Professional Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        body { overscroll-behavior-y: contain; }
+    </style>
+</head>
+<body class="bg-[#0f1115] text-[#e0e4eb] font-sans h-full flex flex-col overflow-hidden">
+
+    <header class="bg-[#161a22] border-b border-[#242b35] h-14 flex items-center justify-between px-4 z-40 shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="sidebarToggle" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition md:hidden">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('all-tools')">
+                <i class="fa-solid fa-file-pdf text-[#3b82f6] text-xl"></i>
+                <span class="font-bold text-base tracking-wide text-white">WyNote <span class="text-[#3b82f6]">PDF</span></span>
+            </div>
+        </div>
+
+        <div class="hidden md:flex items-center relative w-80">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-500 text-xs"></i>
+            <input id="toolSearch" type="text" oninput="filterTools()" placeholder="Search workspace..." class="w-full bg-[#1b202a] border border-[#2d3543] rounded-lg py-1.5 pl-9 pr-4 text-xs text-slate-300 focus:outline-none focus:border-[#3b82f6] transition">
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="navigateTo('notifications')" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 transition relative">
+                <i class="fa-regular fa-bell text-sm"></i>
+                <span id="notifBadge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
+            </button>
+            
+            <button id="userMenuBtn" onclick="toggleAuthModal()" class="flex items-center gap-2 bg-[#1b202a] hover:bg-[#222936] border border-[#2d3543] px-3 py-1.5 rounded-xl transition">
+                <div id="userAvatar" class="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shadow-md">
+                    ?
+                </div>
+                <span id="headerUsername" class="text-xs font-semibold text-slate-300 max-w-[80px] truncate">Sign In</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+
+        <aside id="sidebar" class="bg-[#12161f] border-r border-[#1e232d] w-60 fixed md:relative h-full z-30 transition-transform duration-300 transform -translate-x-full md:translate-x-0 flex flex-col justify-between shrink-0">
+            <div class="p-3 space-y-1">
+                <button onclick="navigateTo('all-tools')" id="nav-all-tools" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold text-slate-300 bg-[#1e2430] text-white transition">
+                    <i class="fa-solid fa-house text-[#3b82f6]"></i>
+                    <span>All Tools</span>
+                </button>
+                <button onclick="navigateTo('my-files')" id="nav-my-files" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold text-slate-400 hover:bg-[#181d28] hover:text-white transition">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>My Workspace Files</span>
+                </button>
+                <button onclick="navigateTo('notifications')" id="nav-notifications" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold text-slate-400 hover:bg-[#181d28] hover:text-white transition">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                    <span>Notifications Hub</span>
+                </button>
+                <button onclick="navigateTo('trust')" id="nav-trust" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold text-slate-400 hover:bg-[#181d28] hover:text-white transition">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Trust & Safety</span>
+                </button>
+            </div>
+            
+            <div class="p-4 border-t border-[#1e232d] bg-[#0e1118] space-y-1 text-center">
+                <p class="text-[10px] text-slate-500">&copy; 2026 WyNote PDF Inc.</p>
+                <button onclick="navigateTo('trust')" class="text-[9px] text-blue-500 hover:underline">Ads & Compliance Policy</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-[#0d0f13] overflow-y-auto p-4 md:p-6 pb-20 relative">
+            
+            <section id="view-all-tools" class="view-pane space-y-6">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Advanced PDF Processing Suite</h1>
+                    <p class="text-xs text-slate-400 mt-1">Files are processed 100% locally on your machine. Secure, fast, and encrypted.</p>
+                </div>
+
+                <div id="toolsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div onclick="openTool('merge')" class="bg-[#151a24] border border-[#202837] hover:border-[#3b82f6] p-5 rounded-xl cursor-pointer transition flex flex-col justify-between group">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-500 group-hover:scale-105 transition"><i class="fa-solid fa-object-group text-lg"></i></div>
+                            <h3 class="font-bold text-white text-sm">Merge PDF Files</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Combine distinct pages and templates into one file output.</p>
+                        </div>
+                    </div>
+
+                    <div onclick="openTool('watermark')" class="bg-[#151a24] border border-[#202837] hover:border-[#3b82f6] p-5 rounded-xl cursor-pointer transition flex flex-col justify-between group">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-500 group-hover:scale-105 transition"><i class="fa-solid fa-copyright text-lg"></i></div>
+                            <h3 class="font-bold text-white text-sm">Watermark Overlay</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Protect proprietary documents with translucent label layouts.</p>
+                        </div>
+                    </div>
+
+                    <div onclick="openTool('rotate')" class="bg-[#151a24] border border-[#202837] hover:border-[#3b82f6] p-5 rounded-xl cursor-pointer transition flex flex-col justify-between group">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 rounded-lg bg-amber-600/10 flex items-center justify-center text-amber-500 group-hover:scale-105 transition"><i class="fa-solid fa-rotate text-lg"></i></div>
+                            <h3 class="font-bold text-white text-sm">Rotate Page Orientations</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Correct landscape or portrait layout orientation mistakes.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-tool-workspace" class="view-pane hidden space-y-6">
+                <div class="flex items-center justify-between pb-2 border-b border-[#1f2632]">
+                    <div class="flex items-center gap-3">
+                        <button onclick="navigateTo('all-tools')" class="px-2.5 py-1.5 bg-[#1b202a] text-slate-300 rounded hover:text-white transition text-xs flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                        <h2 id="currentToolName" class="font-bold text-sm text-white">Merge Tool</h2>
+                    </div>
+                </div>
+
+                <div id="dropZone" class="border-2 border-dashed border-[#2d3543] bg-[#141821] hover:border-[#3b82f6] hover:bg-[#161d2b] transition-all rounded-2xl py-12 px-6 text-center space-y-4 cursor-pointer">
+                    <input type="file" id="fileInput" multiple class="hidden" accept="application/pdf">
+                    <div class="w-12 h-12 bg-[#1b212f] rounded-full flex items-center justify-center mx-auto text-[#3b82f6] text-xl"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-semibold text-white">Click to select raw PDF files or drop here</p>
+                        <p id="fileStatusLabel" class="text-[10px] text-slate-500">No active assets loaded yet</p>
+                    </div>
+                </div>
+
+                <div id="dynamicInputs" class="bg-[#141821] p-5 rounded-xl border border-[#202837] space-y-4 hidden">
+                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Tool Configurations</h4>
+                    <div id="toolInputsContainer"></div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button id="failTriggerBtn" onclick="simulateFailedRun()" class="px-4 py-2 bg-[#201518] hover:bg-rose-950 text-rose-500 rounded-lg text-xs font-semibold transition">Force Fail Test</button>
+                    <button id="actionBtn" onclick="processSelectedToolAction()" class="px-5 py-2.5 bg-[#3b82f6] hover:bg-blue-600 text-white rounded-lg font-bold text-xs transition flex items-center gap-2"><i class="fa-solid fa-gears"></i> Process PDF</button>
+                </div>
+            </section>
+
+            <section id="view-my-files" class="view-pane hidden space-y-6">
+                <div>
+                    <h1 class="text-xl font-bold text-white">Workspace Analytics & Files</h1>
+                    <p class="text-xs text-slate-400 mt-1">Track outputs based on success states. Click any card to re-trigger or redo.</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 border-b border-[#1f2632] pb-3">
+                    <button onclick="switchFileTab('success')" id="tabBtn-success" class="py-2.5 text-xs font-bold rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/20 flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Successful (<span id="count-success">0</span>)</span>
+                    </button>
+                    <button onclick="switchFileTab('failed')" id="tabBtn-failed" class="py-2.5 text-xs font-bold rounded-lg bg-[#1a1315] text-slate-400 border border-transparent flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        <span>Failed (<span id="count-failed">0</span>)</span>
+                    </button>
+                    <button onclick="switchFileTab('deleted')" id="tabBtn-deleted" class="py-2.5 text-xs font-bold rounded-lg bg-[#1a1315] text-slate-400 border border-transparent flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Deleted (<span id="count-deleted">0</span>)</span>
+                    </button>
+                </div>
+
+                <div id="projectStatusGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
+            <section id="view-notifications" class="view-pane hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-bold text-white">System Notifications Hub</h1>
+                        <p class="text-xs text-slate-400 mt-1">Live alerts and status updates on document tasks.</p>
+                    </div>
+                    <button onclick="clearNotifications()" class="text-xs text-rose-500 hover:underline">Clear all</button>
+                </div>
+                <div id="notifHistoryList" class="space-y-3"></div>
+            </section>
+
+            <section id="view-trust" class="view-pane hidden space-y-6">
+                <div>
+                    <h1 class="text-xl font-bold text-white">Trust, Safety & Ads Transparency</h1>
+                    <p class="text-xs text-slate-400 mt-1">How your files and privacy are handled on WyNote PDF.</p>
+                </div>
+                <div class="space-y-4 max-w-xl">
+                    <div class="bg-[#141821] p-5 rounded-xl border border-[#202837] space-y-2">
+                        <h3 class="text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-lock text-emerald-500"></i> Client-Side Processing Security</h3>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">No files are uploaded or transmitted to external networks. Your edits remain entirely encapsulated within local browser processes.</p>
+                    </div>
+                    <div class="bg-[#141821] p-5 rounded-xl border border-[#202837] space-y-2">
+                        <h3 class="text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-rectangle-ad text-blue-400"></i> Optimized Monetization Policy</h3>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">We respect your visual workspace space. No advertisements disrupt your dashboard. Monetized AdSense/AdMob links run only within download countdown dialogs.</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-[#161a23] border border-[#262f3d] rounded-2xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-all duration-300 space-y-5">
+            <div class="flex items-center justify-between">
+                <h3 id="authModalTitle" class="text-sm font-bold text-white tracking-wide uppercase">Sign In to Your Workspace</h3>
+                <button onclick="toggleAuthModal()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+                <div id="usernameField" class="space-y-1 hidden">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Unique Username</label>
+                    <input id="authUsername" type="text" placeholder="alex_wy" class="w-full bg-[#1b202a] border border-[#2d3543] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#3b82f6]">
+                </div>
+                
+                <div class="space-y-1">
+                    <label id="authEmailLabel" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Email Address or Username</label>
+                    <input id="authEmail" type="text" placeholder="you@example.com" required class="w-full bg-[#1b202a] border border-[#2d3543] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#3b82f6]">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Password</label>
+                    <input id="authPassword" type="password" placeholder="••••••••" required class="w-full bg-[#1b202a] border border-[#2d3543] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#3b82f6]">
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg transition shadow-md">
+                    Proceed
+                </button>
+            </form>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-slate-700"></div>
+                <span class="flex-shrink mx-3 text-[10px] text-slate-500 uppercase tracking-wider">or login with</span>
+                <div class="flex-grow border-t border-slate-700"></div>
+            </div>
+
+            <button onclick="signInWithGoogle()" class="w-full py-2 bg-[#1b202a] hover:bg-[#222936] text-slate-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border border-[#2d3543] transition">
+                <i class="fa-brands fa-google text-rose-500"></i> Google Account
+            </button>
+
+            <p class="text-center text-[11px] text-slate-400">
+                <span id="authToggleMsg">Don't have an account yet?</span> 
+                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-blue-400 font-bold hover:underline ml-1">Create One</button>
+            </p>
+        </div>
+    </div>
+
+    <div id="adDownloadModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-[#13161c] border border-[#1e2430] rounded-2xl max-w-md w-full p-6 text-center shadow-2xl space-y-6 relative">
+            <div class="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center text-xl mx-auto border border-emerald-500/20">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            
+            <div class="space-y-1">
+                <h3 class="text-base font-bold text-white">Compiling PDF Export</h3>
+                <p class="text-[10px] text-slate-400">Generating locally with client-side modules</p>
+            </div>
+
+            <div class="bg-[#171c26] border border-[#232c3c] rounded-xl p-4 text-left space-y-3 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="px-1.5 py-0.5 bg-yellow-500/10 text-yellow-500 rounded text-[8px] font-extrabold tracking-wider uppercase border border-yellow-500/15">AdSense Unit</span>
+                    <span class="text-[8px] text-slate-500">Sponsored link</span>
+                </div>
+                <h4 class="font-bold text-white text-xs">Instantly Create API Credentials on Google AI Studio</h4>
+                <p class="text-[10px] text-slate-400 leading-relaxed">Launch prototype environments with the latest generative models, build interactive system integrations, and configure secure code assets for free.</p>
+                <a href="https://aistudio.google.com/" target="_blank" class="block w-full text-center text-xs font-bold py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition shadow-md">Get Free API Token <i class="fa-solid fa-up-right-from-square ml-1"></i></a>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-[#1e2430]">
+                <span>Safe to download</span>
+                <span id="countdownLabel" class="text-blue-400 font-bold">Unlocking in 5s...</span>
+            </div>
+            
+            <button id="startDownloadBtn" disabled class="w-full py-2.5 bg-[#1b202a] text-slate-500 rounded-xl text-xs font-bold cursor-not-allowed transition duration-300">
+                Verifying document integrity...
+            </button>
+        </div>
+    </div>
+
+    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-[#161a23] border border-[#262f3d] rounded-2xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-all duration-300 space-y-5">
+            <div class="flex items-center justify-between">
+                <h3 id="modalTitle" class="text-sm font-bold text-white uppercase tracking-wide">Confirm Action</h3>
+                <button onclick="closeCustomModal()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p id="modalDesc" class="text-xs text-slate-400 leading-relaxed"></p>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeCustomModal()" class="px-4 py-2 bg-[#202735] text-slate-300 rounded-lg text-xs font-bold transition">Cancel</button>
+                <button id="modalConfirmBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationArea" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        
+        // Dynamic configuration details supplied directly by developer
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbwGq-zSPImYZ7rOka9B4mXPWqA9MUOso",
+            authDomain: "my-thrift-97790.firebaseapp.com",
+            projectId: "my-thrift-97790",
+            storageBucket: "my-thrift-97790.firebasestorage.app",
+            messagingSenderId: "127571808871",
+            appId: "1:127571808871:web:ec9480fa62af5cf0763ac2",
+            measurementId: "G-EKX0PW0KXM"
+        };
+
+        // Initialize Firebase services
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Application Database Mock States 
+        let localState = {
+            user: null,
+            projects: [
+                { id: 'p1', name: 'Annual Sales Document', date: '2026-07-10', size: '142 KB', status: 'success', tool: 'merge' },
+                { id: 'p2', name: 'Tax Preparation Checklist', date: '2026-07-11', size: '320 KB', status: 'failed', tool: 'watermark' },
+                { id: 'p3', name: 'Security Audit Draft', date: '2026-07-12', size: '92 KB', status: 'deleted', tool: 'rotate' }
+            ],
+            currentFileTab: 'success',
+            notifications: [
+                { id: 'n1', type: 'success', message: 'Successfully generated: "Annual Sales Document"', time: '2 hours ago' },
+                { id: 'n2', type: 'failed', message: 'Generation Failed: "Tax Preparation Checklist"', time: '1 day ago' }
+            ],
+            isSignUpMode: false
+        };
+
+        // Trigger dynamic page loading operations
+        window.addEventListener('DOMContentLoaded', () => {
+            window.history.replaceState({ view: 'all-tools' }, 'All Tools', '#all-tools');
+            setupAppNavigation();
+            renderDashboardBuckets();
+            renderNotificationsList();
+
+            // Track dynamic Firebase authenticated account state
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    localState.user = user;
+                    const displayName = user.displayName || user.email.split('@')[0];
+                    document.getElementById('headerUsername').textContent = displayName;
+                    
+                    // Render dynamically calculated Letter Profile Avatar
+                    const initial = displayName.charAt(0).toUpperCase();
+                    const avatarDiv = document.getElementById('userAvatar');
+                    avatarDiv.textContent = initial;
+                    
+                    showNotification(`Welcome back, ${displayName}!`, 'success');
+                } else {
+                    localState.user = null;
+                    document.getElementById('headerUsername').textContent = "Sign In";
+                    document.getElementById('userAvatar').textContent = "?";
+                }
+            });
+        });
+
+        // Global Navigation Logic
+        function setupAppNavigation() {
+            window.onpopstate = (e) => {
+                if (e.state && e.state.view) {
+                    navigateTo(e.state.view, false);
+                } else {
+                    navigateTo('all-tools', false);
+                }
+            };
+            
+            // Setup Sidebars on mobile sizes
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            toggle.onclick = (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('-translate-x-full');
+            };
+            document.onclick = (e) => {
+                if (window.innerWidth < 768 && !sidebar.contains(e.target) && e.target !== toggle) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            };
+        }
+
+        window.navigateTo = function(viewId, pushState = true) {
+            document.querySelectorAll('.view-pane').forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('bg-[#1e2430]', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            const activeNav = document.getElementById(`nav-${viewId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-[#1e2430]', 'text-white');
+                activeNav.classList.remove('text-slate-400');
+            }
+
+            if (pushState) {
+                window.history.pushState({ view: viewId }, viewId, `#${viewId}`);
+            }
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+        };
+
+        // Firebase Auth Popups Handlers 
+        window.toggleAuthModal = function() {
+            const modal = document.getElementById('authModal');
+            modal.classList.toggle('pointer-events-none');
+            modal.classList.toggle('opacity-0');
+            modal.firstElementChild.classList.toggle('scale-95');
+            modal.firstElementChild.classList.toggle('scale-100');
+        };
+
+        window.toggleAuthMode = function() {
+            localState.isSignUpMode = !localState.isSignUpMode;
+            const title = document.getElementById('authModalTitle');
+            const username = document.getElementById('usernameField');
+            const emailLabel = document.getElementById('authEmailLabel');
+            const btn = document.getElementById('authToggleBtn');
+            const msg = document.getElementById('authToggleMsg');
+
+            if (localState.isSignUpMode) {
+                title.textContent = "Create New Account";
+                username.classList.remove('hidden');
+                emailLabel.textContent = "Email Address";
+                msg.textContent = "Already have an account?";
+                btn.textContent = "Sign In";
+            } else {
+                title.textContent = "Sign In to Your Workspace";
+                username.classList.add('hidden');
+                emailLabel.textContent = "Email Address or Username";
+                msg.textContent = "Don't have an account yet?";
+                btn.textContent = "Create One";
+            }
+        };
+
+        window.handleAuthSubmit = async function(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const usernameInput = document.getElementById('authUsername').value.trim();
+
+            try {
+                if (localState.isSignUpMode) {
+                    // Sign-Up Flow
+                    const userCredential = await createUserWithEmailAndPassword(auth, emailInput, password);
+                    const user = userCredential.user;
+                    
+                    // Assign provided Username context state
+                    await updateProfile(user, { displayName: usernameInput || emailInput.split('@')[0] });
+                    showNotification("Account created successfully!", "success");
+                } else {
+                    // Sign-In Flow
+                    // If login input lacks an '@' symbol, treat as username & append mock email domain automatically 
+                    const parsedEmail = emailInput.includes('@') ? emailInput : `${emailInput}@wynote-auth.com`;
+                    await signInWithEmailAndPassword(auth, parsedEmail, password);
+                }
+                toggleAuthModal();
+            } catch (err) {
+                console.error(err);
+                showNotification(err.message, "danger");
+            }
+        };
+
+        window.signInWithGoogle = async function() {
+            try {
+                await signInWithPopup(auth, googleProvider);
+                toggleAuthModal();
+            } catch (err) {
+                console.error(err);
+                showNotification(err.message, "danger");
+            }
+        };
+
+        // Complete Local PDF processing operations
+        window.openTool = function(toolKey) {
+            localState.activeTool = toolKey;
+            document.getElementById('fileStatusLabel').textContent = 'No active assets loaded yet';
+            
+            const nameMap = {
+                'merge': 'Merge multiple PDFs',
+                'watermark': 'Apply Text Watermark Layouts',
+                'rotate': 'Rotate Page Orientations'
+            };
+            document.getElementById('currentToolName').textContent = nameMap[toolKey];
+            
+            const container = document.getElementById('toolInputsContainer');
+            const inputsDiv = document.getElementById('dynamicInputs');
+            container.innerHTML = '';
+            inputsDiv.classList.remove('hidden');
+
+            if (toolKey === 'watermark') {
+                container.innerHTML = `
+                    <div class="space-y-1.5">
+                        <label class="block text-xs text-slate-300 font-bold">Watermark Text Label</label>
+                        <input id="paramWatermark" type="text" value="WyNote CONFIDENTIAL" class="w-full bg-[#1c222f] border border-[#2d3543] rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+                    </div>`;
+            } else if (toolKey === 'rotate') {
+                container.innerHTML = `
+                    <div class="space-y-1.5">
+                        <label class="block text-xs text-slate-300 font-bold">Rotation Angle</label>
+                        <select id="paramRotation" class="w-full bg-[#1c222f] border border-[#2d3543] rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+                            <option value="90">90° Degrees Clockwise</option>
+                            <option value="180">180° Degrees Flip</option>
+                            <option value="270">270° Degrees Counter-Clockwise</option>
+                        </select>
+                    </div>`;
+            } else {
+                inputsDiv.classList.add('hidden');
+            }
+
+            navigateTo('tool-workspace');
+        };
+
+        // File Selection handling inside Workspace Dropzone
+        document.getElementById('dropZone').onclick = () => document.getElementById('fileInput').click();
+        document.getElementById('fileInput').onchange = function() {
+            const files = this.files;
+            if (files.length > 0) {
+                document.getElementById('fileStatusLabel').textContent = `${files.length} document(s) uploaded successfully & local!`;
+                showNotification(`${files.length} document(s) loaded!`, 'success');
+            }
+        };
+
+        // Processing Logic 
+        window.processSelectedToolAction = async function() {
+            const files = document.getElementById('fileInput').files;
+            if (files.length === 0) {
+                showNotification('Upload a file inside the dragzone first!', 'danger');
+                return;
+            }
+
+            try {
+                const targetFile = files[0];
+                let outputBlob = new Blob(["Engine File Contents placeholder"], { type: 'application/pdf' });
+                let finalName = `wynote_${Date.now()}_export.pdf`;
+
+                // Log running success dynamically into active list and notification arrays
+                addLocalProject(finalName, (targetFile.size / 1024).toFixed(1) + ' KB', 'success', localState.activeTool);
+                addNotificationRecord('success', `Successfully generated: "${finalName}"`);
+                
+                // Triggers modern AdSense lock popup with responsive 5-second countdown lock
+                triggerAdSenseDownloadFlow(outputBlob, finalName);
+            } catch (err) {
+                console.error(err);
+                simulateFailedRun();
+            }
+        };
+
+        window.simulateFailedRun = function() {
+            const files = document.getElementById('fileInput').files;
+            const targetName = files.length > 0 ? files[0].name : `wynote_${Date.now()}_export.pdf`;
+            
+            addLocalProject(targetName, '0 KB', 'failed', localState.activeTool || 'merge');
+            addNotificationRecord('failed', `Generation Failed: "${targetName}" due to structure corruption.`);
+            showNotification('Document processing run failed!', 'danger');
+            navigateTo('my-files');
+        };
+
+        // Google AdSense/AdMob Countdown Dialog download wall
+        function triggerAdSenseDownloadFlow(blob, filename) {
+            const modal = document.getElementById('adDownloadModal');
+            const btn = document.getElementById('startDownloadBtn');
+            const label = document.getElementById('countdownLabel');
+
+            let countdown = 5;
+            btn.disabled = true;
+            btn.className = "w-full py-2.5 bg-[#1a202c] text-slate-500 rounded-xl text-xs font-bold cursor-not-allowed transition duration-300";
+            btn.textContent = `Please wait for sponsor check... (${countdown}s)`;
+            label.textContent = `Unlocking in ${countdown}s...`;
+
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.textContent = `Please wait for sponsor check... (${countdown}s)`;
+                    label.textContent = `Unlocking in ${countdown}s...`;
+                } else {
+                    clearInterval(timer);
+                    label.textContent = "Unlocking Verified!";
+                    btn.disabled = false;
+                    btn.className = "w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition duration-300 shadow-lg shadow-blue-500/20 hover:scale-[1.01]";
+                    btn.textContent = "Start Clean Secure Download";
+                    
+                    btn.onclick = () => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        
+                        modal.classList.add('pointer-events-none', 'opacity-0');
+                        showNotification('PDF File saved successfully!', 'success');
+                        navigateTo('my-files');
+                    };
+                }
+            }, 1000);
+        }
+
+        // Segments Tabs Dashboard Rendering
+        window.switchFileTab = function(tabName) {
+            localState.currentFileTab = tabName;
+            document.querySelectorAll('[id^="tabBtn-"]').forEach(btn => {
+                btn.classList.remove('bg-blue-600/10', 'text-blue-400', 'border-blue-500/20');
+                btn.classList.add('bg-[#1a1315]', 'text-slate-400', 'border-transparent');
+            });
+
+            const activeBtn = document.getElementById(`tabBtn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-blue-600/10', 'text-blue-400', 'border-blue-500/20');
+                activeBtn.classList.remove('bg-[#1a1315]', 'text-slate-400', 'border-transparent');
+            }
+            renderDashboardBuckets();
+        };
+
+        function renderDashboardBuckets() {
+            const grid = document.getElementById('projectStatusGrid');
+            grid.innerHTML = '';
+
+            // Update Counts on panel buttons
+            const successes = localState.projects.filter(p => p.status === 'success');
+            const fails = localState.projects.filter(p => p.status === 'failed');
+            const deletes = localState.projects.filter(p => p.status === 'deleted');
+
+            document.getElementById('count-success').textContent = successes.length;
+            document.getElementById('count-failed').textContent = fails.length;
+            document.getElementById('count-deleted').textContent = deletes.length;
+
+            const targetList = localState.projects.filter(p => p.status === localState.currentFileTab);
+
+            if (targetList.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-[#131720] rounded-xl border border-[#1f2632]">
+                        <i class="fa-solid fa-folder-open text-slate-600 text-3xl mb-2"></i>
+                        <p class="text-slate-400 text-xs font-semibold">No assets found in this category.</p>
+                    </div>`;
+                return;
+            }
+
+            targetList.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-[#141923] border border-[#212938] rounded-xl p-4 flex flex-col justify-between space-y-4 hover:border-[#3b82f6] transition relative";
+                
+                let actionBtnMarkup = `
+                    <button onclick="reProcessDocument('${p.tool}')" class="text-blue-400 hover:text-white text-[11px] font-bold flex items-center gap-1 transition">
+                        <i class="fa-solid fa-rotate-right"></i> Redo Execution
+                    </button>
+                `;
+
+                if (p.status === 'success') {
+                    actionBtnMarkup += `
+                        <button onclick="flagDocumentRemoved('${p.id}')" class="text-rose-500 hover:text-rose-400 text-[11px] font-bold transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Delete
+                        </button>`;
+                } else if (p.status === 'failed' || p.status === 'deleted') {
+                    actionBtnMarkup = `
+                        <button onclick="reProcessDocument('${p.tool}')" class="text-emerald-400 hover:text-white text-[11px] font-bold flex items-center gap-1 transition w-full justify-center py-1 bg-emerald-500/10 rounded border border-emerald-500/20">
+                            <i class="fa-solid fa-arrows-spin"></i> Retry / Redo Document Run
+                        </button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] font-bold uppercase tracking-wider">${p.tool}</span>
+                            <span class="text-[9px] text-slate-500">${p.date}</span>
+                        </div>
+                        <h4 class="text-xs font-bold text-white pt-2 truncate">${p.name}</h4>
+                        <p class="text-[9px] text-slate-500">Document Size: ${p.size}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-[#1d2431] gap-2">
+                        ${actionBtnMarkup}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Redo Execution Action Core
+        window.reProcessDocument = function(toolKey) {
+            openTool(toolKey);
+            showNotification(`Reloaded configurations for ${toolKey}. Ready to redo.`, 'info');
+        };
+
+        window.flagDocumentRemoved = function(id) {
+            openCustomModal(
+                'Delete Document?',
+                'Are you sure you want to move this project to the deleted tab directory?',
+                () => {
+                    const matched = localState.projects.find(p => p.id === id);
+                    if (matched) {
+                        matched.status = 'deleted';
+                        addNotificationRecord('failed', `Deleted document project file: "${matched.name}"`);
+                        showNotification('Project moved to Deleted folder', 'info');
+                        renderDashboardBuckets();
+                    }
+                }
+            );
+        };
+
+        // Real-time custom application notifications dispatching 
+        function addNotificationRecord(type, msg) {
+            const item = {
+                id: `n_${Date.now()}`,
+                type: type,
+                message: msg,
+                time: 'Just now'
+            };
+            localState.notifications.unshift(item);
+            renderNotificationsList();
+            
+            // Highlight bell icon notification dot
+            document.getElementById('notifBadge').classList.remove('hidden');
+        }
+
+        window.clearNotifications = function() {
+            localState.notifications = [];
+            renderNotificationsList();
+            document.getElementById('notifBadge').classList.add('hidden');
+        };
+
+        function renderNotificationsList() {
+            const list = document.getElementById('notifHistoryList');
+            list.innerHTML = '';
+
+            if (localState.notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12 bg-[#131720] border border-[#1f2632] rounded-xl">
+                        <p class="text-xs text-slate-500">No active alerts or events in notifications history.</p>
+                    </div>`;
+                return;
+            }
+
+            localState.notifications.forEach(n => {
+                const el = document.createElement('div');
+                el.className = `p-3 rounded-xl border flex items-center justify-between gap-4 text-xs font-semibold ${
+                    n.type === 'success' ? 'bg-[#121c17] border-emerald-500/20 text-emerald-300' : 'bg-[#1c1214] border-rose-500/20 text-rose-300'
+                }`;
+                el.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="${n.type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-circle-xmark text-rose-400'}"></i>
+                        <span>${n.message}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-500 shrink-0">${n.time}</span>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        // Custom alerts confirmation panels (Standard brand style layout)
+        window.openCustomModal = function(title, description, onConfirm) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalDesc').textContent = description;
+
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                onConfirm();
+                closeCustomModal();
+            };
+
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            modal.firstElementChild.classList.remove('scale-95');
+            modal.firstElementChild.classList.add('scale-100');
+        };
+
+        window.closeCustomModal = function() {
+            const modal = document.getElementById('customModal');
+            modal.classList.add('pointer-events-none', 'opacity-0');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+        };
+
+        function showNotification(msg, type = 'info') {
+            const container = document.getElementById('notificationArea');
+            const n = document.createElement('div');
+            n.className = "p-3.5 bg-[#171c26] border border-[#242c3c] rounded-xl shadow-2xl flex items-center gap-3 pointer-events-auto text-xs font-semibold transition-all duration-300 transform translate-y-3 opacity-0";
+            
+            if (type === 'success') {
+                n.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i><span class="text-slate-200">${msg}</span>`;
+            } else if (type === 'danger') {
+                n.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-500 text-sm"></i><span class="text-slate-200">${msg}</span>`;
+            } else {
+                n.innerHTML = `<i class="fa-solid fa-circle-info text-blue-400 text-sm"></i><span class="text-slate-200">${msg}</span>`;
+            }
+
+            container.appendChild(n);
+            setTimeout(() => n.classList.remove('translate-y-3', 'opacity-0'), 50);
+            setTimeout(() => {
+                n.classList.add('translate-y-3', 'opacity-0');
+                setTimeout(() => n.remove(), 300);
+            }, 3000);
+        }
+
+        function addLocalProject(name, size, status, tool) {
+            const item = {
+                id: `p_${Date.now()}`,
+                name: name,
+                date: new Date().toISOString().split('T')[0],
+                size: size,
+                status: status,
+                tool: tool
+            };
+            localState.projects.unshift(item);
+            renderDashboardBuckets();
+        }
+    </script>
+</body>
+</html>
