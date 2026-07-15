@@ -1,67 +1,17 @@
 {
-  "name": "WyNote PDF Tools",
   "short_name": "WyNote PDF",
-  "description": "Fast, secure, and professional PDF tools that run completely on-device. No uploads.",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
-  "theme_color": "#1a73e8",
-  "background_color": "#ffffff",
-  "lang": "en",
-  "categories": ["productivity", "utilities", "business"],
+  "name": "WyNote PDF Workspace Suite",
   "icons": [
     {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
+      "src": "https://cdn-icons-png.flaticon.com/512/337/337946.png",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-180.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "apple touch icon"
     }
   ],
-  "screenshots": [
-    {
-      "src": "screenshots/desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Merge, split, and sign PDFs on-device"
-    },
-    {
-      "src": "screenshots/mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Fast PDF tools on your phone"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Merge PDF",
-      "short_name": "Merge",
-      "description": "Combine multiple PDFs instantly",
-      "url": "./index.html?tool=merge",
-      "icons": [{ "src": "icons/merge-96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Sign PDF",
-      "short_name": "Sign",
-      "description": "Apply signature and export",
-      "url": "./index.html?tool=sign",
-      "icons": [{ "src": "icons/sign-96.png", "sizes": "96x96" }]
-    }
-  ],
-  "prefer_related_applications": false
-    }
+  "start_url": "./index.html",
+  "background_color": "#0f1115",
+  "theme_color": "#161a22",
+  "display": "standalone",
+  "orientation": "portrait"
+}
