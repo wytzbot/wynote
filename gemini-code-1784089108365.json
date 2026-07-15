@@ -1,0 +1,37 @@
+{
+  "short_name": "WyNote PDF",
+  "name": "WyNote PDF Tools",
+  "description": "Fast. Secure. Professional PDF Tools operating completely on-device.",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#1a73e8",
+  "theme_color": "#1a73e8",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "shortcuts": [
+    {
+      "name": "Merge PDF",
+      "short_name": "Merge",
+      "description": "Combine files directly",
+      "url": "./index.html?tool=merge"
+    },
+    {
+      "name": "Sign PDF",
+      "short_name": "Sign",
+      "description": "Apply signature instantly",
+      "url": "./index.html?tool=sign"
+    }
+  ]
+}
