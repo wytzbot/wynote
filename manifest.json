@@ -1,37 +1,67 @@
 {
-  "short_name": "WyNote PDF",
   "name": "WyNote PDF Tools",
-  "description": "Fast. Secure. Professional PDF Tools operating completely on-device.",
+  "short_name": "WyNote PDF",
+  "description": "Fast, secure, and professional PDF tools that run completely on-device. No uploads.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "theme_color": "#1a73e8",
+  "background_color": "#ffffff",
+  "lang": "en",
+  "categories": ["productivity", "utilities", "business"],
   "icons": [
     {
       "src": "icons/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "sizes": "192x192"
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",
-      "type": "image/png",
       "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "apple touch icon"
     }
   ],
-  "start_url": "./index.html",
-  "background_color": "#1a73e8",
-  "theme_color": "#1a73e8",
-  "display": "standalone",
-  "orientation": "portrait-primary",
+  "screenshots": [
+    {
+      "src": "screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Merge, split, and sign PDFs on-device"
+    },
+    {
+      "src": "screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Fast PDF tools on your phone"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Merge PDF",
       "short_name": "Merge",
-      "description": "Combine files directly",
-      "url": "./index.html?tool=merge"
+      "description": "Combine multiple PDFs instantly",
+      "url": "./index.html?tool=merge",
+      "icons": [{ "src": "icons/merge-96.png", "sizes": "96x96" }]
     },
     {
       "name": "Sign PDF",
       "short_name": "Sign",
-      "description": "Apply signature instantly",
-      "url": "./index.html?tool=sign"
+      "description": "Apply signature and export",
+      "url": "./index.html?tool=sign",
+      "icons": [{ "src": "icons/sign-96.png", "sizes": "96x96" }]
     }
-  ]
-}
+  ],
+  "prefer_related_applications": false
+    }
