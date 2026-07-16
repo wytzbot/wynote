@@ -609,12 +609,60 @@ function showDownloadModal() {
   document.getElementById('final-download-btn').addEventListener('click', triggerFinalDownload);
 }
 
-// 3. This final click triggers both the Adsterra popunder and starts the download
+let pendingPdfDataUri = null;
+let pendingFileName = null;
+
+// 1. Call this function when the user clicks your initial "Download" button
+function prepareDownload(pdfDataUri, fileName) {
+  pendingPdfDataUri = pdfDataUri;
+  pendingFileName = fileName || "wynote-processed.pdf";
+
+  showDownloadModal();
+}
+
+// 2. Open the modal asking them to complete the download
+function showDownloadModal() {
+  if (document.getElementById('download-gateway-modal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'download-gateway-modal';
+  modal.style = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 17, 21, 0.95); display: flex; align-items: center;
+    justify-content: center; z-index: 9999; font-family: sans-serif;
+  `;
+
+  modal.innerHTML = `
+    <div style="background: #161a22; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; border: 1px solid #2d3748;">
+      <h3 style="color: #fff; margin-bottom: 10px; font-size: 1.5rem;">Your PDF is Ready!</h3>
+      <p style="color: #a0aec0; margin-bottom: 24px; font-size: 0.95rem;">Click the button below to complete the processing and download your document.</p>
+      <button id="final-download-btn" style="background: #3182ce; color: #fff; border: none; padding: 12px 30px; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.2s;">
+        <i class="fa-solid fa-download"></i> Get File & Download
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Bind the download trigger to the button
+  document.getElementById('final-download-btn').addEventListener('click', triggerFinalDownload);
+}
+
+// 3. This opens your Smartlink in a background tab and downloads the PDF
 function triggerFinalDownload() {
   if (!pendingPdfDataUri) return;
 
-  // Since Adsterra's script listens to global clicks, this click event automatically 
-  // triggers the popunder in the background. We just initiate the download.
+  // Your exact Adsterra Smartlink
+  const adsterraSmartlink = "https://potterynaggingformerly.com/x58ii5d6m?key=10d4fbb0315a85d05075c184f47319a2";
+
+  // Open the ad in a new tab
+  const adWindow = window.open(adsterraSmartlink, '_blank');
+  if (adWindow) {
+    adWindow.blur(); // Shifts focus back to your web page on supported browsers
+    window.focus();
+  }
+
+  // Trigger the actual file download
   const downloadLink = document.createElement("a");
   downloadLink.href = pendingPdfDataUri;
   downloadLink.download = pendingFileName;
@@ -622,25 +670,14 @@ function triggerFinalDownload() {
   downloadLink.click();
   document.body.removeChild(downloadLink);
 
-  // Remove the gateway modal after a brief delay so the user returns to the workspace
-  setTimeout(() => {
-    const modal = document.getElementById('download-gateway-modal');
-    if (modal) modal.remove();
-    // Clean up cache
-    pendingPdfDataUri = null;
-    pendingFileName = null;
-  }, 1000);
-        }
+  // Remove the modal
+  const modal = document.getElementById('download-gateway-modal');
+  if (modal) modal.remove();
 
-        window.switchFileTab = function(tabName) {
-            localState.currentFileTab = tabName;
-            document.querySelectorAll('[id^="tabBtn-"]').forEach(btn => {
-                btn.classList.remove('bg-blue-600/10', 'text-blue-400', 'border-blue-500/20');
-                btn.classList.add('bg-[#1a1315]', 'text-slate-400', 'border-transparent');
-            });
-            document.getElementById(`tabBtn-${tabName}`).classList.add('bg-blue-600/10', 'text-blue-400', 'border-blue-500/20');
-            renderDashboardBuckets();
-        };
+  // Clear memory
+  pendingPdfDataUri = null;
+  pendingFileName = null;
+    }
 
         function renderDashboardBuckets() {
             const grid = document.getElementById('projectStatusGrid');
@@ -753,7 +790,6 @@ function triggerFinalDownload() {
             });
         };
     </script>
-    <script src="https://pl30383360.effectivecpmnetwork.com/ad/cf/91/adcf917ed372efdca888a6cb25b63903.js"></script>
     <script>
       let touchStartOffsetY = 0;
 
