@@ -754,6 +754,27 @@ function triggerFinalDownload() {
         };
     </script>
     <script src="https://pl30383360.effectivecpmnetwork.com/ad/cf/91/adcf917ed372efdca888a6cb25b63903.js"></script>
-    
+    <script>
+      let touchStartOffsetY = 0;
+
+      // Capture where the user first touches the screen
+      window.addEventListener('touchstart', (e) => {
+        touchStartOffsetY = e.touches[0].pageY;
+      }, { passive: true });
+
+      // Track the drag distance when they pull down
+      window.addEventListener('touchmove', (e) => {
+        const currentY = e.touches[0].pageY;
+        const pullDistance = currentY - touchStartOffsetY;
+
+        // Trigger reload if pulled down more than 150px at the very top of the page
+        if (document.documentElement.scrollTop === 0 && pullDistance > 150) {
+          console.log("[PWA] Pull-to-refresh detected. Reloading...");
+          window.location.reload();
+        }
+      }, { passive: true });
+    </script>
+</body>
+</html>
 </body>
 </html>
