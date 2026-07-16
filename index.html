@@ -754,6 +754,12 @@ function triggerFinalDownload() {
         };
     </script>
     <script src="https://pl30383360.effectivecpmnetwork.com/ad/cf/91/adcf917ed372efdca888a6cb25b63903.js"></script>
+    window.addEventListener('wheel', (e) => {
+  // If user is at the top of the page and scrolls UP forcefully (e.deltaY is negative)
+  if (document.documentElement.scrollTop === 0 && e.deltaY < -80) {
+    window.location.reload();
+  }
+});
     
 </body>
 </html>
